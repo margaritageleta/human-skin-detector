@@ -78,7 +78,7 @@ class SkinDetector:
     # It allows using a dilation parameter.
     # Set plot = True to visualize the results.
     def segment (self, img, plot = False):
-        print("Segmenting shape ", np.asarray(img).shape)
+        # print("Segmenting shape ", np.asarray(img).shape)
 
         new_mask = np.zeros(shape = color.rgb2ycbcr(img).shape)
         """
@@ -120,7 +120,7 @@ class SkinDetector:
         (img_YCbCr[:,:,2] <= ((-2.2857 * img_YCbCr[:,:,1]) + 432.85))] = 1
         """
 
-        
+        """
         img_RGB = img.copy()
         img_LAB = color.rgb2lab(img)
         new_mask[
@@ -133,6 +133,57 @@ class SkinDetector:
         #(img_LAB[:,:,2] >= 25)
         
         ] = 1
+        """
+
+        img_RGB = img.copy()
+        img_LAB = color.rgb2lab(img)
+        img_YCbCr = color.rgb2ycbcr(img)
+        img_HSV = color.rgb2hsv(img)
+
+        new_mask[
+            # YCbCr
+            (img_YCbCr[:,:,1] >= 77) &
+            (img_YCbCr[:,:,1] <= 127) &
+            (img_YCbCr[:,:,2] >= 133) &
+            (img_YCbCr[:,:,2] <= 173) &
+
+            # RGB
+
+            (img_RGB[:,:,0] > 95) &
+            (img_RGB[:,:,1] > 40) &
+            (img_RGB[:,:,2] > 20) &
+            (img_RGB[:,:,0] > img_RGB[:,:,1]) &
+            (img_RGB[:,:,0] > img_RGB[:,:,2]) &
+            #(np.abs((img_RGB[:,:,0] - img_RGB[:,:,1])) <= 15) &
+
+            # HSV
+            
+            (img_HSV[:,:,0] > 0.03) &
+            (img_HSV[:,:,0] < 0.1) &
+            (img_HSV[:,:,1] > 0.20) &
+            (img_HSV[:,:,1] < 30) &
+            (img_HSV[:,:,2] >= 0.4) &
+            
+
+            # LAB
+            (img_LAB[:,:,1] < 55) &
+            (img_LAB[:,:,1] > 0) &
+            (img_LAB[:,:,2] > 0.99) &
+
+            # PERSONAL
+            ((img_LAB[:,:,1] - (0.009 * img_LAB[:,:,2]**2)) >= 0) &
+            (np.abs((img_LAB[:,:,1] - img_LAB[:,:,2])) < 10) 
+
+
+
+            #(img_LAB[:,:,0] <= 90) &
+            #(img_LAB[:,:,1] <= 60) &
+            #(np.abs((img_RGB[:,:,0] - img_RGB[:,:,1])) > 15) &
+            #(img_LAB[:,:,0] >= 0) &
+            #(img_LAB[:,:,2] <= 20) &
+            #(img_LAB[:,:,2] >= 3)
+        ] = 1
+
         
 
 

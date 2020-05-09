@@ -1,9 +1,10 @@
 from SkinDetector import SkinDetector
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 def segmentation_experiments():
-    sd = SkinDetector(hist_range = (5,95), dilate = 5)
+    sd = SkinDetector(hist_range = (5,95), dilate = 2)
     sd.train()
 
     segmented = sd.segment_dataset(sd.TR_DATA)
@@ -56,7 +57,17 @@ if __name__ == "__main__":
         f.write()
     """
 
-    segmentation_experiments()
+    # segmentation_experiments()
+
+    
+    sd = SkinDetector(hist_range=(5,95))
+    sd.train()
+    basewidth = 300
+    img = Image.open(f'../../../../Desktop/mano2.jpg')
+    wpercent = (basewidth/float(img.size[0]))
+    hsize = int((float(img.size[1])*float(wpercent)))
+    img = img.resize((basewidth,hsize), Image.ANTIALIAS)
+    sd.segment(np.asarray(img), plot=True)
     
 
 
