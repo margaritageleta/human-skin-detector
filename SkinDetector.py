@@ -54,12 +54,14 @@ class SkinDetector:
             masked_img[self.TR_MASK[id] == True] = 0
             ONLY_IMAGE_MASK.append(color.rgb2ycbcr(masked_img)[self.TR_MASK[id] != True])
 
+        
         # Extract chroma.
         CHROMA_R = CHROMA_B = np.array([])
         for id in ONLY_IMAGE_MASK:
             CHROMA_R = np.hstack((CHROMA_R, id[:,1]))
             CHROMA_B = np.hstack((CHROMA_B, id[:,2]))
         
+
         # Define thresholds.
         self.LOWER_THRESHOLD_R = np.percentile(CHROMA_R, self.lower_percentile)
         self.MEDIAN_R = np.percentile(CHROMA_R, 50)
@@ -68,16 +70,71 @@ class SkinDetector:
         self.LOWER_THRESHOLD_B = np.percentile(CHROMA_B, self.lower_percentile)
         self.MEDIAN_B = np.percentile(CHROMA_B, 50)
         self.UPPER_THRESHOLD_B = np.percentile(CHROMA_B, self.upper_percentile)
+        
+
+
 
     # Method for segmenting an image.
     # It allows using a dilation parameter.
     # Set plot = True to visualize the results.
     def segment (self, img, plot = False):
-        #print("Segmenting shape ", np.asarray(img).shape)
+        print("Segmenting shape ", np.asarray(img).shape)
 
         new_mask = np.zeros(shape = color.rgb2ycbcr(img).shape)
+        """
         img_transformed = color.rgb2ycbcr(img)
         new_mask[(img_transformed[:,:,1] > self.LOWER_THRESHOLD_R) & (img_transformed[:,:,1] < self.UPPER_THRESHOLD_R) & (img_transformed[:,:,2] > self.LOWER_THRESHOLD_B) &(img_transformed[:,:,2] < self.UPPER_THRESHOLD_B)] = 1
+        
+
+        
+        img_RGB = img.copy()
+        img_HSV = color.rgb2hsv(img)
+
+        new_mask[(img_HSV[:,:,0] >= 0) &
+        (img_HSV[:,:,0] <= 50) &
+        (img_HSV[:,:,1] >= 0.23) &
+        (img_HSV[:,:,1] <= 0.68) &
+        (img_RGB[:,:,0] > 95) &
+        (img_RGB[:,:,1] > 40) &
+        (img_RGB[:,:,2] > 20) &
+        (img_RGB[:,:,0] > img_RGB[:,:,1]) &
+        (img_RGB[:,:,0] > img_RGB[:,:,2]) &
+        (np.abs((img_RGB[:,:,0] - img_RGB[:,:,1])) > 15)] = 1
+        
+
+        
+        img_RGB = img.copy()
+        img_YCbCr = color.rgb2ycbcr(img)
+
+        new_mask[(img_RGB[:,:,0] > 95) &
+        (img_RGB[:,:,1] > 40) &
+        (img_RGB[:,:,2] > 20) &
+        (img_RGB[:,:,0] > img_RGB[:,:,1]) &
+        (img_RGB[:,:,0] > img_RGB[:,:,2]) &
+        (img_YCbCr[:,:,1] > 85) &
+        (img_YCbCr[:,:,0] > 80) &
+        (img_YCbCr[:,:,2] <= ((1.5862 * img_YCbCr[:,:,1]) + 20)) &
+        (img_YCbCr[:,:,2] >= ((0.3448 * img_YCbCr[:,:,1]) + 76.2069)) &
+        (img_YCbCr[:,:,2] >= ((-4.5652 * img_YCbCr[:,:,1]) + 234.5652)) &
+        (img_YCbCr[:,:,2] <= ((-1.15 * img_YCbCr[:,:,1]) + 301.75)) &
+        (img_YCbCr[:,:,2] <= ((-2.2857 * img_YCbCr[:,:,1]) + 432.85))] = 1
+        """
+
+        
+        img_RGB = img.copy()
+        img_LAB = color.rgb2lab(img)
+        new_mask[
+        #(img_RGB[:,:,0] > 95) &
+        #(img_LAB[:,:,0] >= 70) &
+        #(img_LAB[:,:,0] <= 90) &
+        (img_LAB[:,:,1] >= 9.5) &
+        (img_LAB[:,:,1] <= 25) &
+        (np.abs((img_LAB[:,:,1] - img_LAB[:,:,2])) < 10)
+        #(img_LAB[:,:,2] >= 25)
+        
+        ] = 1
+        
+
 
         if self.dilate:
             structuring_elem = selem.disk(self.dilation_size)
