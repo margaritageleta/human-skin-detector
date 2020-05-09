@@ -7,10 +7,15 @@ from skimage.morphology import selem, dilation
 class SkinDetector:
     """ Skin Detector using yCbCr colorspace. """
     # Initialize SkinDetector.
-    def __init__(self, hist_range = (1, 99)):
+    def __init__(self, hist_range = (1, 99), dilate = 0):
         self.load_data('./Training-Dataset', './Validation-Dataset')
         self.lower_percentile = hist_range[0]
         self.upper_percentile = hist_range[1]
+        if dilate > 0:
+            self.dilate = True
+            self.dilation_size = dilate
+        else:
+            self.dilate = False
 
     # Method for reading Training and Validation data.
     def load_data(self, TR_path, VD_path):
@@ -67,12 +72,8 @@ class SkinDetector:
     # Method for segmenting an image.
     # It allows using a dilation parameter.
     # Set plot = True to visualize the results.
-    def segment (self, img, dilate = 0, plot = False):
-        if dilate > 0:
-            self.dilate = True
-            self.dilation_size = dilate
-        else:
-            self.dilate = False
+    def segment (self, img, plot = False):
+        #print("Segmenting shape ", np.asarray(img).shape)
 
         new_mask = np.zeros(shape = color.rgb2ycbcr(img).shape)
         img_transformed = color.rgb2ycbcr(img)
@@ -129,17 +130,16 @@ class SkinDetector:
     def validate (self, prediction_set, truth_set):
         self.accuracy, self.precision, self.recall, self.F1score = [], [], [], []
         for (prediction, truth) in zip(prediction_set, truth_set):
-            metrics = self.assess(color.rgb2gray(prediction), truth_set)
+            metrics = self.assess(color.rgb2gray(prediction), truth)
             self.accuracy.append(metrics[0])
             self.precision.append(metrics[1])
             self.recall.append(metrics[2])
             self.F1score.append(metrics[3])
 
-    """
+    
     def segment_dataset(self, data):
-        images = np.asarray(self.segment(data[0])).reshape(-1, 1)
-        for img in data:
-            if not np.array_equal(img, data[0]):
-                images = np.hstack((images, self.segment(img).reshape(-1, 1)))
-        return images
-    """
+        datanpy = np.asarray(data)
+        for i in range(0, datanpy.shape[0]):
+            datanpy[i] = self.segment(datanpy[i])
+        return datanpy
+    
