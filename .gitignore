@@ -3,3 +3,5 @@ Validation-Dataset/*
 SkinDetection.docx
 Finger Detection.pdf
 data.txt
+
+__pycache__
