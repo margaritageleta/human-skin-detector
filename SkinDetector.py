@@ -149,7 +149,7 @@ class SkinDetector:
 
             # RGB
 
-            (img_RGB[:,:,0] > 95) &
+            (img_RGB[:,:,0] > 70) &
             (img_RGB[:,:,1] > 40) &
             (img_RGB[:,:,2] > 20) &
             (img_RGB[:,:,0] > img_RGB[:,:,1]) &
@@ -158,21 +158,21 @@ class SkinDetector:
 
             # HSV
             
-            (img_HSV[:,:,0] > 0.03) &
-            (img_HSV[:,:,0] < 0.1) &
+            (img_HSV[:,:,0] > 0.0275) & ##
+            (img_HSV[:,:,0] < 20) &
             (img_HSV[:,:,1] > 0.20) &
-            (img_HSV[:,:,1] < 30) &
-            (img_HSV[:,:,2] >= 0.4) &
+            (img_HSV[:,:,1] < 70) & ##
+            (img_HSV[:,:,2] >= 0) & ##
             
 
             # LAB
-            (img_LAB[:,:,1] < 55) &
+            (img_LAB[:,:,1] < 60) &
             (img_LAB[:,:,1] > 0) &
             (img_LAB[:,:,2] > 0.99) &
 
             # PERSONAL
             ((img_LAB[:,:,1] - (0.009 * img_LAB[:,:,2]**2)) >= 0) &
-            (np.abs((img_LAB[:,:,1] - img_LAB[:,:,2])) < 10) 
+            (np.abs((img_LAB[:,:,1] - img_LAB[:,:,2])) < 12) 
 
 
 

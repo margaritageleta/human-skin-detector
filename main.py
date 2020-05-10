@@ -60,10 +60,10 @@ if __name__ == "__main__":
     # segmentation_experiments()
 
     
-    sd = SkinDetector(hist_range=(5,95))
+    sd = SkinDetector(dilate=1)
     sd.train()
     basewidth = 300
-    img = Image.open(f'../../../../Desktop/mano2.jpg')
+    img = Image.open(f'../../../../Desktop/manos.jpg')
     wpercent = (basewidth/float(img.size[0]))
     hsize = int((float(img.size[1])*float(wpercent)))
     img = img.resize((basewidth,hsize), Image.ANTIALIAS)
