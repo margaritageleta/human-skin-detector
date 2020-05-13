@@ -85,7 +85,7 @@ class SkinDetector:
         img_transformed = color.rgb2ycbcr(img)
         new_mask[(img_transformed[:,:,1] > self.LOWER_THRESHOLD_R) & (img_transformed[:,:,1] < self.UPPER_THRESHOLD_R) & (img_transformed[:,:,2] > self.LOWER_THRESHOLD_B) &(img_transformed[:,:,2] < self.UPPER_THRESHOLD_B)] = 1
         
-
+        
         
         img_RGB = img.copy()
         img_HSV = color.rgb2hsv(img)
@@ -133,8 +133,8 @@ class SkinDetector:
         #(img_LAB[:,:,2] >= 25)
         
         ] = 1
+       
         """
-
         img_RGB = img.copy()
         img_LAB = color.rgb2lab(img)
         img_YCbCr = color.rgb2ycbcr(img)
@@ -183,8 +183,8 @@ class SkinDetector:
             #(img_LAB[:,:,2] <= 20) &
             #(img_LAB[:,:,2] >= 3)
         ] = 1
-
-        
+ 
+      
 
 
         if self.dilate:
