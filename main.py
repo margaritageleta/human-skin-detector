@@ -4,6 +4,7 @@ from skimage import color
 import numpy as np
 from PIL import Image
 
+# This function segments the validation dataset.
 def segmentation_experiments():
     sd = SkinDetector(hist_range = (3,97), dilate = 2)
     sd.train()
@@ -49,18 +50,9 @@ def segmentation_experiments():
 
     print('\n')
 
-
-if __name__ == "__main__":
-
-    """
-    for hist_range in zip(np.arange(0, 10, 0.1), 100 -np.arange(0, 10, 0.1)): 
-        sd = SkinDetector(hist_range = hist_range, dilate = 0)
-
-    with open('data.txt', 'w') as f:
-        f.write()
-    """
-
-    """
+# This function segments an image you want.
+# Note: change the path of the image.
+def segment_your_image():
     sd = SkinDetector(hist_range=(3, 97), dilate=2)
     sd.train()
     basewidth = 300
@@ -69,48 +61,11 @@ if __name__ == "__main__":
     hsize = int((float(img.size[1])*float(wpercent)))
     img = img.resize((basewidth,hsize), Image.ANTIALIAS)
     segmented = sd.segment(np.asarray(img), plot=True)
-    """
 
-    segmentation_experiments()
-
-    """
-    sd = SkinDetector(dilate=1)
-    sd.train()
-    basewidth = 300
-    img = Image.open(f'../../../../Desktop/caras.jpg')
-    wpercent = (basewidth/float(img.size[0]))
-    hsize = int((float(img.size[1])*float(wpercent)))
-    img = img.resize((basewidth,hsize), Image.ANTIALIAS)
-    segmented = sd.segment(np.asarray(img), plot=True)
-
-
-
-    from skimage.morphology import reconstruction
-
-    print(color.rgb2gray(np.asarray(img)).shape)
-    print(segmented.shape)
-
-    maxval = np.amax(color.rgb2gray(np.asarray(img)))
-    minval = np.amin(color.rgb2gray(np.asarray(img)))
-    print("Max=",maxval,", Min=",minval)
-    marker = np.copy(segmented)
-    marker[marker > minval] = maxval
-
-    fig, ax = plt.subplots(1, 2, figsize=(10,5))
-    ax[0].imshow(segmented, cmap = plt.get_cmap('gray'))
-    ax[1].imshow(marker, cmap = plt.get_cmap('gray'))
-    plt.show()
-
-    rec = reconstruction(marker, color.rgb2gray(np.asarray(img)), method='erosion')
-
-    fig, ax = plt.subplots(1, 3, figsize=(10,5))
-    ax[0].imshow(segmented, cmap = plt.get_cmap('gray'))
-    ax[1].imshow(rec, cmap = plt.get_cmap('gray'))
-    ax[2].imshow(color.rgb2gray(np.asarray(img)), cmap = plt.get_cmap('gray'))
-    plt.show()
-
-    """
-"""
+# This function makes all the assessment to find the optimal range
+# yields the plot from the paper
+# and stores the data in a dictionary in file data.txt.
+def assessment_paper():
     TRmedianAcc = []
     TRmedianPre = []
     TRmedianRec = []
@@ -227,7 +182,64 @@ if __name__ == "__main__":
     with open('data.txt', 'w') as f:
         f.write(str(data))
 
-    """
+# Experiments with reconstruction operators
+def reconstruction_experiments():
+    from skimage.morphology import reconstruction
+    from skimage import exposure
+
+    sd = SkinDetector(hist_range=(3, 97), dilate=0)
+    sd.train()
+    basewidth = 300
+    img = Image.open(f'../../../../Desktop/caras.jpg')
+    wpercent = (basewidth/float(img.size[0]))
+    hsize = int((float(img.size[1])*float(wpercent)))
+    img = np.asarray(img.resize((basewidth,hsize), Image.ANTIALIAS))
+
+    from skimage import data
+    img = data.astronaut()
+    segmented = sd.segment(np.asarray(img), plot=True)
+
+    better_contrast =  exposure.equalize_adapthist(color.rgb2gray(img), clip_limit=0.001)
+
+    fig, ax = plt.subplots(1, 2, figsize=(10,5))
+    ax[0].imshow(color.rgb2gray(img), cmap = plt.get_cmap('gray'))
+    ax[1].imshow(better_contrast, cmap = plt.get_cmap('gray'))
+    plt.show()
+    
+
+    maxval = np.max(color.rgb2gray(better_contrast))
+    minval = np.min(color.rgb2gray(better_contrast))
+    #print("Max=",maxval,", Min=",minval)
+    marker = np.copy(better_contrast)
+    # Intensity of seed image must be greater than that of the mask image for reconstruction by erosion.
+    print("Before ", len(np.where(marker <= color.rgb2gray(better_contrast)[0])))
+    marker[marker <= minval] = maxval
+    print("After ", len(np.where(marker <= color.rgb2gray(better_contrast)[0])))
+
+    fig, ax = plt.subplots(1, 2, figsize=(10,5))
+    ax[0].imshow(segmented, cmap = plt.get_cmap('gray'))
+    ax[1].imshow(marker, cmap = plt.get_cmap('gray'))
+    plt.show()
+
+    print(len(np.where(marker > color.rgb2gray(np.asarray(img)))[0]))
+
+
+    rec = reconstruction(marker, better_contrast, method='erosion')
+
+    fig, ax = plt.subplots(1, 3, figsize=(10,5))
+    ax[0].imshow(segmented, cmap = plt.get_cmap('gray'))
+    ax[1].imshow(rec, cmap = plt.get_cmap('gray'))
+    ax[2].imshow(better_contrast, cmap = plt.get_cmap('gray'))
+    plt.show()
+
+
+if __name__ == "__main__":
+
+    segmentation_experiments()
+
+    
+
+
 
     
 
