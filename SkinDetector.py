@@ -39,7 +39,7 @@ class SkinDetector:
                         self.TR_MASK.append(np.array(Image.open(f'{TR_path}/Masks-Ideal/{finger}_P_hgr1_id0{person}_{shot}.bmp')))
                     except IOError: pass
                     try:
-                        self.VD_DATA.append(np.array(Image.open(f'{VD_path}/Images/{finger}_P_hgr1_id0{person}_{shot}.jpg')))     
+                        self.VD_DATA.append(np.array(Image.open(f'{VD_path}/Images/{finger}_P_hgr1_id0{person}_{shot}.jpg')))    
                         self.VD_LABEL.append(finger)
                     except IOError: pass
                     try:
@@ -250,4 +250,6 @@ class SkinDetector:
         for i in range(0, datanpy.shape[0]):
             datanpy[i] = self.segment(datanpy[i])
         return datanpy
+
     
+        
